@@ -1,5 +1,9 @@
 # MD5算法原理概述
 
+| 姓名   | 学号     | 学院                 | 班级                 |
+| ------ | -------- | -------------------- | -------------------- |
+| 周远笛 | 16340311 | 数据科学与计算机学院 | 软件工程（数字媒体） |
+
 总的来说，MD5将任意长度的消息通过补全后分块的方式，对每一块和之前的结果进行迭代运算（4次循环，每个循环周有16次迭代）。将最后一次输出的结果作为加密结果。在这个过程中，每一轮迭代输入当前消息快和上一步迭代的结果。
 
 ## 运行环境
@@ -139,7 +143,7 @@ for i in range(0, len(yGroups)):
  temp = IV
 ```
 
-记循环为t(1~4) ，迭代为i(1~16)：
+记循环为t(1-4) ，迭代为i(1-16)：
 
 ```python
 	for t in range(1,5):
@@ -225,10 +229,10 @@ ans += str[2:4]
 
 首先，代码中调用了python的hashlib库生成md5的标准结果与自己的结果进行比对。
 
-```python
+````python
 md = hashlib.md5()  # 创建md5对象
 md.update(str.encode(encoding='utf-8'))
-```
+````
 
 ### 基础测试
 
@@ -241,7 +245,7 @@ zhouyuandi
 16340311
 ```
 
-![1544249530258](C:\Users\Sherry\AppData\Roaming\Typora\typora-user-images\1544249530258.png)
+![1544249530258](imgs\1544249530258.png)
 
 ### 复杂测试
 
@@ -253,6 +257,6 @@ zhouyuandi
 \"Crescent moon\" \(The Crescent Moon, 1903\), by India famous poet, writer Tagore, mainly from 1903 published Bengali poetry \"child set\", some are also directly in English writing.Collections of poetry, poetry life depicted children's game, a skillfully performed the children's psychological, as well as their lively imagination.Its special meaningful artistic charm, led us to a pure child world, brought to our childhood memories
 ```
 
-![1544249675118](C:\Users\Sherry\AppData\Roaming\Typora\typora-user-images\1544249675118.png)
+![1544249675118](imgs\1544249675118.png)
 
 验证成功！
