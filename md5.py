@@ -38,17 +38,16 @@ def T(i):
 def padding(cleartext):
     # 对于input_m中每个元素执行ord函数，使用ord函数其转化为ASCII值
     byteArray = list(map(ord, cleartext))
-    lenOfK = len(byteArray)
-    if len(byteArray) * 8 % 512 > 448:
-        lenOfP = 512 + 448- len(byteArray) * 8 % 512
+    lenOfK = len(byteArray) * 8
+    if lenOfK % 512 > 448:
+        lenOfP = 512 + 448- lenOfK % 512
     else:
-        lenOfP = 448 - len(byteArray) * 8 % 512
-    numOfP = int(lenOfP / 8)
+        lenOfP = 448 - lenOfK % 512
     byteArray.append(0b10000000)
-    for i in range(1, numOfP):
+    for i in range(1, int(lenOfP / 8)):
         byteArray.append(0b00000000)
     for i in range(0, 8):
-        byteArray.append(int(lenOfK * 8 / pow(2, i * 8) % pow(2,8)))
+        byteArray.append(int(lenOfK / pow(2, i * 8) % pow(2,8)))
     return byteArray
 
 def dividing(byteArray):
@@ -60,22 +59,17 @@ def dividing(byteArray):
         yGroups.append(temp)
     return yGroups
 
-def initialize(yGroups):
+def initialize():
     CV_0 = list([aRegister, bRegister, cRegister, dRegister])
+    return CV_0
+
+def cyclicCompress(yGroups, CV_0):
     for i in range(0, len(yGroups)):
-        temp = CV_0
         CV_0 = H_MD5(CV_0, yGroups[i])
-        CV_0[0] += temp[0]
-        CV_0[0] %= pow(2,32)
-        CV_0[1] += temp[1]
-        CV_0[1] %= pow(2,32)
-        CV_0[2] += temp[2]
-        CV_0[2] %= pow(2,32)
-        CV_0[3] += temp[3]
-        CV_0[3] %= pow(2,32)
-    return list(map(hex,CV_0))
+    return CV_0
 
 def H_MD5(IV, Y_i): # i in 1~16, t in 1~4, Y_i = yGroup[i]
+    temp = IV
     for t in range(1,5):
         for i in range(1,17):
             a = IV[0]
@@ -104,6 +98,14 @@ def H_MD5(IV, Y_i): # i in 1~16, t in 1~4, Y_i = yGroup[i]
             elif t == 4:
                 A = (b+leftShift((a+I(b,c,d)+X_k+T(16*(t-1)+i))%pow(2,32), s))%pow(2,32)
             IV = [d, A, b, c]
+    IV[0] += temp[0]
+    IV[0] %= pow(2,32)
+    IV[1] += temp[1]
+    IV[1] %= pow(2,32)
+    IV[2] += temp[2]
+    IV[2] %= pow(2,32)
+    IV[3] += temp[3]
+    IV[3] %= pow(2,32)
     return IV
 
 def leftShift(x, s): # 参数为 32 bit 输入，4字节
@@ -130,10 +132,11 @@ def inverseStr(str):
     return ans
 
 def md5(input_m):
-    bytearray =  padding(input_m)
+    bytearray = padding(input_m)
     yGroups = dividing(bytearray)
-    result = initialize(yGroups)
-    return backToBigEnd(result)
+    CV_0 = initialize()
+    result = cyclicCompress(yGroups, CV_0)
+    return backToBigEnd(list(map(hex,result)))
 
 def standard_md5(str=''):
     md = hashlib.md5()  # 创建md5对象
@@ -141,8 +144,10 @@ def standard_md5(str=''):
     return md.hexdigest()
 
 if __name__ == '__main__':
-    # CLEARTEXT = sys.argv[1]
+    CLEARTEXT = sys.argv[1]
     print("STANDARD MD5 IS: ")
-    print(standard_md5("\"Crescent moon\" (The Crescent Moon, 1903), by India famous poet, writer Tagore, mainly from 1903 published Bengali poetry \"child set\", some are also directly in English writing.Collections of poetry, poetry life depicted children's game, a skillfully performed the children's psychological, as well as their lively imagination.Its special meaningful artistic charm, led us to a pure child world, brought to our childhood memories"))
+    print(standard_md5(CLEARTEXT))
+    # print(standard_md5("\"Crescent moon\" (The Crescent Moon, 1903), by India famous poet, writer Tagore, mainly from 1903 published Bengali poetry \"child set\", some are also directly in English writing.Collections of poetry, poetry life depicted children's game, a skillfully performed the children's psychological, as well as their lively imagination.Its special meaningful artistic charm, led us to a pure child world, brought to our childhood memories"))
     print("IMPLEMENTED MD5 IS: ")
-    print(md5("\"Crescent moon\" (The Crescent Moon, 1903), by India famous poet, writer Tagore, mainly from 1903 published Bengali poetry \"child set\", some are also directly in English writing.Collections of poetry, poetry life depicted children's game, a skillfully performed the children's psychological, as well as their lively imagination.Its special meaningful artistic charm, led us to a pure child world, brought to our childhood memories"))
+    print(md5(CLEARTEXT))
+    # print(md5("\"Crescent moon\" (The Crescent Moon, 1903), by India famous poet, writer Tagore, mainly from 1903 published Bengali poetry \"child set\", some are also directly in English writing.Collections of poetry, poetry life depicted children's game, a skillfully performed the children's psychological, as well as their lively imagination.Its special meaningful artistic charm, led us to a pure child world, brought to our childhood memories"))
